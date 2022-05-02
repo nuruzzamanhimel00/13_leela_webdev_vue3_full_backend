@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +18,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json([
+           "data"=>new UserCollection(User::all())
+        ]);
     }
 
     /**
@@ -57,7 +61,9 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json([
+            'data' => new UserResource(User::find($id))
+        ]);
     }
 
     /**
@@ -78,9 +84,18 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user )
     {
-        //
+        $updateuser = $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+        if( $updateuser ){
+            return response()->json([
+                "message" => "User Update SUccessfully"
+            ],200);
+        }
+
     }
 
     /**
@@ -89,8 +104,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        if( $user->delete() ){
+            return response()->json([
+                "message" => "User Delete SUccessfully"
+            ],200);
+        }
     }
 }
